@@ -14,8 +14,10 @@ Two equivalent ways — pick whichever fits how you work:
 
 **Option B — Clone + push to your own repo**
 1. `git clone git@github.com:prashantkul/agent-assignment-3.git`
-2. Create a new repository under your own GitHub account (public or private — if private, add the course staff GitHub usernames as collaborators).
+2. Create a new **public** repository under your own GitHub account.
 3. `cd agent-assignment-3 && git remote set-url origin <your-new-repo-url> && git push -u origin main`
+
+**Your repository must be public.** The grader pulls anonymously — private repos can't be accessed without managing collaborator invitations, which we won't do. If you have a strong reason to keep it private (e.g. an existing employer policy), email the course staff before you start.
 
 Either way, you submit by pasting the URL of your repo into the Canvas assignment page when you're done.
 
@@ -121,7 +123,7 @@ git push origin main          # or whichever branch you're submitting
 
 You can push multiple times before the deadline; the grader uses the **last commit on your submitted branch as of the deadline**. If you submit a tag instead of a branch (`v1.0`, etc.), make sure the tag is pushed.
 
-If your repository is private, add the course staff GitHub usernames as collaborators *before* you submit the URL — otherwise the grader cannot pull.
+**Repository must be public.** The grader pulls anonymously over HTTPS. If your repo is private when you submit the URL, the grader will mark it ungradable and follow up — not what you want the day before the deadline.
 
 ---
 
