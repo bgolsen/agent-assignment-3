@@ -4,9 +4,24 @@ What to submit, where, and what the grader is looking for.
 
 ---
 
-## 1. Files in your final submission
+## 1. Get your own copy of the starter
 
-Push the following to your assignment repository's `main` branch:
+Two equivalent ways — pick whichever fits how you work:
+
+**Option A — Fork (recommended if you already have a GitHub account)**
+1. Go to [github.com/prashantkul/agent-assignment-3](https://github.com/prashantkul/agent-assignment-3) and click **Fork**.
+2. Clone your fork locally and start working on `main` (or a branch — the grader looks at whichever branch you submit).
+
+**Option B — Clone + push to your own repo**
+1. `git clone git@github.com:prashantkul/agent-assignment-3.git`
+2. Create a new repository under your own GitHub account (public or private — if private, add the course staff GitHub usernames as collaborators).
+3. `cd agent-assignment-3 && git remote set-url origin <your-new-repo-url> && git push -u origin main`
+
+Either way, you submit by pasting the URL of your repo into the Canvas assignment page when you're done.
+
+## 2. Files in your final submission
+
+Push the following to whichever branch you'll submit:
 
 | Path | Contents |
 |------|----------|
@@ -14,14 +29,14 @@ Push the following to your assignment repository's `main` branch:
 | `custom-nodes/demand-forecast.js` | Your implementations of `movingAverage` and `seasonalIndex` |
 | `custom-nodes/eoq-optimizer.js` | Your `eoq` and `detectViolations` |
 | `custom-nodes/classical-logistics.js` | Your `pickCheapestFeasible` |
-| `analysis.md` | Your written reflection (see §3 below) |
+| `analysis.md` | Your written reflection (see §4 below) |
 | `demo.mp4` *(or a link in `analysis.md` to a Loom/YouTube video)* | ≤ 5-minute screencast |
 
 You do NOT need to commit your `.env` (it's already gitignored), the `data/` CSVs (we have the originals), or the `docs/` folder.
 
 ---
 
-## 2. Exporting your workflow
+## 3. Exporting your workflow
 
 In n8n: open **Supply Chain Manager (Starter)** → top-right ⋮ menu → **Download** → save the file over `workflows/supply-chain-manager-starter.json` in your local clone. Commit it.
 
@@ -29,11 +44,11 @@ Make sure your Code-node JS is also committed in the matching `custom-nodes/*.js
 
 ---
 
-## 3. `analysis.md` (required, ~800–1200 words)
+## 4. `analysis.md` (required, ~800–1200 words)
 
 Half of the per-TODO points carry a "must be defended in `analysis.md`" requirement (specifically MP-2, EOQ-2, and SP-1 — see the rubric in `assignment.md`). Cover the following sections:
 
-### 3.1 Algorithm comparison (300–400 words)
+### 4.1 Algorithm comparison (300–400 words)
 
 Pick *one* SKU from your forecast output and compare:
 - The classical baseline (your `movingAverage` × `seasonalIndex` for that SKU)
@@ -46,7 +61,7 @@ For each, note:
 
 If you picked SKU-007 or SKU-013 (the obvious anomaly cases), do this for one of them and one well-behaved SKU so the contrast is visible.
 
-### 3.2 EOQ assumption analysis (200–300 words)
+### 4.2 EOQ assumption analysis (200–300 words)
 
 For your `detectViolations()`, list each flag you implemented and:
 - The threshold you chose
@@ -55,14 +70,14 @@ For your `detectViolations()`, list each flag you implemented and:
 
 If you decided NOT to implement a particular check (e.g. perishability — none of our demo data is perishable), say so explicitly and explain.
 
-### 3.3 Supplier rubric defense (150–250 words)
+### 4.3 Supplier rubric defense (150–250 words)
 
 Justify your weighting across the four dimensions (cost / lead time / reliability / quality). Specifically:
 - Total = 100; what fraction did each dimension get?
 - Why? (an e-commerce DTC company will weight differently than a hospital supply chain — name your assumed business model)
 - Show your top-ranked and bottom-ranked supplier from a real run, and confirm the ranking matches your intuition
 
-### 3.4 Run metrics (100–200 words)
+### 4.4 Run metrics (100–200 words)
 
 From at least three end-to-end runs (cover at least three of the four `next_subgoal` branches across them):
 - Total tokens consumed (sum across all LLM calls in the run)
@@ -72,13 +87,13 @@ From at least three end-to-end runs (cover at least three of the four `next_subg
 
 The expected envelope is ~$0.05–$0.10 per run. If you blew through it, name the cause.
 
-### 3.5 Reflection on the four primer questions (100–200 words)
+### 4.5 Reflection on the four primer questions (100–200 words)
 
 `docs/planning-primer.md` §8 lists four questions. Answer them. Brief, direct.
 
 ---
 
-## 4. Demo video (≤ 5 minutes)
+## 5. Demo video (≤ 5 minutes)
 
 Record a screencast that shows:
 
@@ -94,21 +109,23 @@ Loom or YouTube unlisted is fine. If linking, paste the URL in `analysis.md` und
 
 ---
 
-## 5. Submitting via GitHub Classroom
+## 6. Submitting via Canvas
 
-This assignment uses GitHub Classroom, same as Assignment 2. Pushing to your repo's `main` branch triggers the autograder.
+When you're ready, submit the URL of your repository (your fork, or the new repo you pushed your clone into) via the Canvas assignment page. The grader pulls from that URL.
 
 ```bash
 git add workflows/ custom-nodes/ analysis.md demo.mp4
 git commit -m "Submit assignment 3"
-git push origin main
+git push origin main          # or whichever branch you're submitting
 ```
 
-The autograder posts results as a Pull Request comment within ~2 minutes. You can push multiple times before the deadline; only your last push counts.
+You can push multiple times before the deadline; the grader uses the **last commit on your submitted branch as of the deadline**. If you submit a tag instead of a branch (`v1.0`, etc.), make sure the tag is pushed.
+
+If your repository is private, add the course staff GitHub usernames as collaborators *before* you submit the URL — otherwise the grader cannot pull.
 
 ---
 
-## 6. What graders DO NOT want to see
+## 7. What graders DO NOT want to see
 
 - A reference solution copied from elsewhere. Failing-but-honest implementations earn more points than working-but-borrowed ones.
 - TODO comments still present in submitted code. If you didn't implement one, leave the `throw new Error("TODO ...")` AND say so in `analysis.md`. Empty TODOs cost less than fake implementations.
@@ -118,6 +135,6 @@ The autograder posts results as a Pull Request comment within ~2 minutes. You ca
 
 ---
 
-## 7. Honor code
+## 8. Honor code
 
 Standard course policy. Discussion with classmates is fine; copying their workflow JSON or JS is not. If two submissions converge on identical schema or prompt text, you'll both be asked to defend it in office hours.
