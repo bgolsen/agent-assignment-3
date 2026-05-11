@@ -6,12 +6,14 @@ Build a hybrid planning agent in **n8n** that decomposes a high-level supply-cha
 
 ## Start here
 
-➡️ **[`docs/assignment.md`](docs/assignment.md)** — full assignment spec, learning objectives, the 12 TODOs with point values, rubric.
+➡️ **[`docs/assignment.md`](docs/assignment.md)** — full take-home assignment spec, learning objectives, the 12 TODOs with point values, rubric.
 
 Then, in order:
 - [`docs/planning-primer.md`](docs/planning-primer.md) — academic framing (HTN, STRIPS, classical vs LLM, hybrid patterns)
 - [`docs/setup.md`](docs/setup.md) — local n8n bring-up, credentials, first run
 - [`docs/submission.md`](docs/submission.md) — what to submit and how
+
+**For the in-class exercise** (separate from the homework): [`docs/in-class.md`](docs/in-class.md) — fully built **Smart Order Router** workflow that auto-imports alongside the homework starter; you trigger it via webhook, observe routing, and modify pieces. ~30 minutes.
 
 ## Quick bring-up
 
@@ -29,7 +31,8 @@ Then open [http://localhost:5678](http://localhost:5678), create a local owner a
 .
 ├── docs/                     spec, primer, setup, submission
 ├── workflows/
-│   ├── supply-chain-manager-starter.json   the assignment (auto-imported)
+│   ├── supply-chain-manager-starter.json   the homework (auto-imported)
+│   ├── smart-order-router-inclass.json     the in-class exercise (auto-imported)
 │   └── topic-planner.json                  warm-up demo
 ├── custom-nodes/             canonical JS sources for the Code nodes
 ├── data/                     demo CSVs (sales, inventory, suppliers, shipping)
