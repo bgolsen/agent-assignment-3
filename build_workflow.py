@@ -221,59 +221,25 @@ def set_node(name, slug, assignments, col, row):
 
 nodes = []
 
-# 1a. Manual Trigger (the everyday entry point)
+# 1. Manual Trigger
 nodes.append({
     "id": nid("manual"),
     "name": "Manual Trigger",
     "type": "n8n-nodes-base.manualTrigger",
     "typeVersion": 1,
-    "position": pos(0, 0),
+    "position": pos(0, 1),
     "parameters": {},
 })
 
-# 1b. Webhook Trigger (the disruption-alert entry point)
-# This is the second entry point demanded by the assignment spec: an
-# external system can POST a disruption alert (stockout, supplier outage,
-# weather event) and the same workflow re-plans in response.
-nodes.append({
-    "id": nid("webhook-disruption"),
-    "name": "Disruption Alert (Webhook)",
-    "type": "n8n-nodes-base.webhook",
-    "typeVersion": 2,
-    "position": pos(0, 2),
-    "parameters": {
-        "httpMethod": "POST",
-        "path": "supply-chain-disruption",
-        "responseMode": "lastNode",
-        "options": {},
-    },
-})
-
-# 2. Set Goal -- accepts EITHER trigger. The expression below uses the
-# webhook payload when it exists and falls back to the default goal
-# string for manual runs.
-#
-# TODO [medium] -- LO-4: error handling and event-driven replanning
-# Wire the webhook payload into the goal string so the Master Planner
-# sees a disruption-shaped goal. Expected payload schema (you decide
-# the exact field names; document them in analysis.md):
-#   { "event_type": "stockout"|"supplier_outage"|"weather_disruption"|...,
-#     "sku":  "SKU-007"  (optional),
-#     "supplier_id": "SUP-002"  (optional),
-#     "severity": "low"|"medium"|"high",
-#     "details": "free-form context the planner should use" }
-# Hint: the webhook payload arrives at $json.body. The replacement
-# expression can be ternary on whether body is present.
+# 2. Set Goal
 nodes.append(set_node(
     "Set Goal", "set-goal",
     [{
         "name": "goal",
         "value": (
-            "={{ $json.body ? "
-            "'TODO -- replace this expression with a goal string built from $json.body' "
-            ": "
-            "'Prepare a Q1 inventory and supplier action plan: identify SKUs at stockout risk, surface suppliers underperforming on reliability, and decide carrier coverage for the next 30 days.' "
-            "}}"
+            "Prepare a Q1 inventory and supplier action plan: identify SKUs "
+            "at stockout risk, surface suppliers underperforming on reliability, "
+            "and decide carrier coverage for the next 30 days."
         ),
         "type": "string",
     }],
