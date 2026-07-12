@@ -17,17 +17,25 @@
  * Reading: docs/planning-primer.md §"Classical search and the cost of optimality"
  */
 
-// Inputs are merged upstream — shipping requests AND the catalogue of options.
+// This node's wired input is whichever Logistics Coordinator (LLM) outputs
+// set use_classical_fallback: true -- i.e. request_id + chosen_option_id +
+// trade_off_summary, NOT the full request (weight_kg, deadline_days, etc.).
+// Use $input to know WHICH requests need fallback, then look up each one's
+// full data by request_id via cross-node reference (same pattern used
+// elsewhere in this workflow). The options catalogue is a plain cross-ref.
 //
 // A request: { type: "request", request_id, weight_kg, origin_region,
 //              dest_region, deadline_days, perishable }
-// An option: { type: "option",  option_id, carrier, mode, origin_region,
-//              destination_region, transit_days, cost_per_kg,
-//              max_weight_kg, supports_perishable }
+// An option: { option_id, carrier, mode, origin_region, destination_region,
+//              transit_days, cost_per_kg, max_weight_kg, supports_perishable }
 
-const all = $input.all().map(i => i.json);
-const requests = all.filter(x => x.type === "request");
-const options  = all.filter(x => x.type === "option");
+const needsFallback = $input.all().map(i => i.json);
+const allRequests = $('Build Shipping Requests').all().map(i => i.json);
+const options = $('Read Shipping JSON').all().map(i => i.json);
+
+const requests = needsFallback
+  .map(inc => allRequests.find(r => r.request_id === inc.request_id))
+  .filter(Boolean);
 
 // ---- TODO — greedy carrier assignment -------------------------------------
 
@@ -58,8 +66,24 @@ const options  = all.filter(x => x.type === "option");
  * the LLM branch, not because we couldn't afford the optimal search.
  */
 function pickCheapestFeasible(req, options) {
-  // TODO [hard] — LO-2: classical search baselines
-  throw new Error("TODO [hard]: implement pickCheapestFeasible()");
+  const feasible = options.filter(o =>
+    o.origin_region === req.origin_region &&
+    o.destination_region === req.dest_region &&
+    Number(o.transit_days) <= Number(req.deadline_days) &&
+    Number(o.max_weight_kg) >= Number(req.weight_kg) &&
+    (!req.perishable || o.supports_perishable === true || o.supports_perishable === "true")
+  );
+
+  if (feasible.length === 0) return null;
+
+  const priced = feasible.map(o => ({
+    ...o,
+    total_cost_usd: Number(req.weight_kg) * Number(o.cost_per_kg),
+  }));
+
+  return priced.reduce((cheapest, o) =>
+    o.total_cost_usd < cheapest.total_cost_usd ? o : cheapest
+  );
 }
 
 // ---- Main loop (provided) -------------------------------------------------

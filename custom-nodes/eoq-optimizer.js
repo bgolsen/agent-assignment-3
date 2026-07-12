@@ -26,9 +26,11 @@
  * Reading: docs/planning-primer.md §"STRIPS-style assumptions and where they break"
  */
 
-// Inputs are merged upstream from two reads — inventory and sales — so this
-// node sees a heterogeneous list. Partition them by which fields are present.
-const all = $input.all().map(i => i.json);
+// This node's wired input is the routed plan object (from the Switch), not
+// the CSV rows -- pull inventory and sales via cross-node references instead
+// (same pattern as Build Context Summary / Build Shipping Requests) and
+// merge into one heterogeneous list. Partition them by which fields are present.
+const all = [...$('Read Inventory JSON').all(), ...$('Read Sales JSON').all()].map(i => i.json);
 
 // Default ordering cost (S in the EOQ formula). In production this would
 // vary by supplier and channel; we hard-code a single value so the focus
@@ -66,8 +68,8 @@ function annualDemand(salesForSku) {
  *       and dividing by zero holding cost is meaningless.)
  */
 function eoq(D, S, H) {
-  // TODO [medium] — LO-2: classical optimization
-  throw new Error("TODO [medium]: implement eoq()");
+  if (D === 0 || H === 0) return 0;
+  return Math.round(Math.sqrt((2 * D * S) / H));
 }
 
 // ---- TODO #2 — assumption-violation detection -----------------------------
@@ -101,8 +103,45 @@ function eoq(D, S, H) {
  *       trigger multiple flags — that's expected and useful downstream.
  */
 function detectViolations(inv, salesSeries) {
-  // TODO [hard] — LO-4: knowing when classical models fail
-  throw new Error("TODO [hard]: implement detectViolations()");
+  const flags = [];
+  if (salesSeries.length === 0) return flags;
+
+  const mean = rows => rows.length
+    ? rows.reduce((acc, r) => acc + Number(r.units_sold), 0) / rows.length
+    : 0;
+
+  // (a) demand is roughly constant -- recent months vs. the rest of the year.
+  const last3 = salesSeries.slice(-3);
+  const prior9 = salesSeries.slice(0, -3);
+  if (prior9.length > 0 && mean(last3) > 2.5 * mean(prior9)) {
+    flags.push("viral_spike");
+  }
+
+  // Mirror check: demand trailing off relative to where it started.
+  const first3 = salesSeries.slice(0, 3);
+  if (mean(first3) > 0 && mean(last3) < 0.5 * mean(first3)) {
+    flags.push("declining");
+  }
+
+  // (d) volume high enough for an "optimal batch" to be meaningful.
+  const D = annualDemand(salesSeries);
+  if (D < 60) {
+    flags.push("low_velocity");
+  }
+
+  // (b) lead time short enough to re-order before stocking out -- only a
+  // real problem when demand is also volatile (coefficient of variation).
+  const overallMean = mean(salesSeries);
+  const variance = salesSeries.reduce(
+    (acc, r) => acc + Math.pow(Number(r.units_sold) - overallMean, 2), 0
+  ) / salesSeries.length;
+  const cv = overallMean > 0 ? Math.sqrt(variance) / overallMean : 0;
+  const isVolatile = cv > 0.4;
+  if (Number(inv.lead_time_days) > 28 && isVolatile) {
+    flags.push("long_lead_time");
+  }
+
+  return flags;
 }
 
 // ---- Main loop (provided) -------------------------------------------------
